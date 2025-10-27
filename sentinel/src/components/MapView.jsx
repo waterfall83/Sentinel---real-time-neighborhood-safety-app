@@ -1,7 +1,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useState } from "react";
-// import ReportForm from "./ReportForm";
+import ReportForm from "./ReportForm";
 
 export default function MapView({ reports = [] }) {
   const [selectedPos, setSelectedPos] = useState(null);
