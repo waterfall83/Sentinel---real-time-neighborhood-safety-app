@@ -1,20 +1,47 @@
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, ZoomControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReportForm from "./ReportForm.jsx";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase/firebase.js";
 
-export default function MapView({ reports = [] }) {
+export default function MapView() {
+    
     const [selectedPos, setSelectedPos] = useState(null);
+    const [reports, setReports] = useState([]);
+    const [zoomLevel, setZoomLevel] = useState(13);
     const [bottomOpen, setBottomOpen] = useState(false);
 
-    const MapClick = () => {
-        useMapEvents({
+    useEffect(() => {
+
+        const unsub = onSnapshot(collection(db, "reports"), (snapshot) => {
+            const data = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setReports(data);
+        });
+        return () => unsub();
+
+    }, []);
+
+    function MapEvents() {
+        
+        const map = useMapEvents({
             click(e) {
                 setSelectedPos(e.latlng);
             },
+            zoomend() {
+                setZoomLevel(map.getZoom());
+            },
+            mousemove(e) {
+                setCursorPos(e.latlng);
+            },
         });
         return null;
-    };
+    }
+
+    const showReports = zoomLevel >= 13;
 
     return (
         <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
@@ -27,18 +54,32 @@ export default function MapView({ reports = [] }) {
             >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <ZoomControl position="bottomright" />
-                <MapClick />
+                <MapEvents />
 
-                {reports.map((r, i) =>
-                    r.location ? (
-                        <Marker key={r.id ?? i} position={[r.location.lat, r.location.lng]}>
-                            <Popup>
-                                <b>{r.title}</b>
-                                <p>{r.description}</p>
-                                <p>Category: {r.category}</p>
-                            </Popup>
-                        </Marker>
-                    ) : null
+                {/* Show report markers only when zoomed in */}
+                {showReports &&
+                    reports.map(
+                        (r) =>
+                            r.pos && (
+                                <Marker
+                                    key={r.id}
+                                    position={[r.pos.lat, r.pos.lng]}
+                                >
+                                    <Popup>
+                                        <b>{r.title}</b>
+                                        <p>{r.desc}</p>
+                                        <p>Category: {r.category}</p>
+                                    </Popup>
+                                </Marker>
+                            )
+                    )}
+
+                {/* Form for adding a new report */}
+                {selectedPos && (
+                    <ReportForm
+                        position={selectedPos}
+                        onClose={() => setSelectedPos(null)}
+                    />
                 )}
 
                 {selectedPos && <ReportForm position={selectedPos} onClose={() => setSelectedPos(null)} />}
@@ -75,10 +116,11 @@ export default function MapView({ reports = [] }) {
 
                 <div style={{ padding: "10px", overflowY: "auto", height: "calc(100% - 30px)" }}>
 
-                        {/* ui goes here: search bar, find nearby, etc. */}
-                        <p> </p>
+                    {/* ui goes here: search bar, find nearby, etc. */}
+                    <p> </p>
                 </div>
             </div>
         </div>
     );
 }
+
