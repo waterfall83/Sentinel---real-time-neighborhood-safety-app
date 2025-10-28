@@ -2,7 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, ZoomControl } fro
 import "leaflet/dist/leaflet.css";
 import { useState, useEffect } from "react";
 import ReportForm from "./ReportForm.jsx";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, doc, updateDoc, increment } from "firebase/firestore";
 import { db } from "../firebase/firebase.js";
 
 const southWest = L.latLng(-90, -180);
@@ -16,6 +16,13 @@ export default function MapView() {
     const [zoomLevel, setZoomLevel] = useState(13);
     const [bottomOpen, setBottomOpen] = useState(false);
     const [cursorPos, setCursorPos] = useState(null);
+    const [voted, setVoted] = useState({});
+
+    async function handleVote(reportId, voteType) {
+        try { 
+        } catch (e) {
+        }
+    }
 
     useEffect(() => {
 
@@ -75,6 +82,7 @@ export default function MapView() {
                                         <b>{r.title}</b>
                                         <p>{r.desc}</p>
                                         <p>Category: {r.category}</p>
+                                        <p>Up: {r.votes.up} , Down: {r.votes.down} </p>
                                     </Popup>
                                 </Marker>
                             )
@@ -135,6 +143,7 @@ export default function MapView() {
                                     <p>{report.desc}</p>
                                     <p>Category: {report.category}</p>
                                     <p>Location (lat, long): {report.pos.lat}, {report.pos.lng}</p>
+                                    <p>Up: {report.votes.up} , Down: {report.votes.down} </p>
                                     <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
                                         <button onClick={() => handleVote(report.id, 1)}>Upvote</button>
                                         <button onClick={() => handleVote(report.id, -1)}>Downvote</button>

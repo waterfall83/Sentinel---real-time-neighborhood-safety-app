@@ -37,7 +37,8 @@ export default function ReportForm({ position, onClose }) {
             pos: { lat: position.lat, lng: position.lng },
             title: title,
             desc: description,
-            category: category
+            category: category,
+            votes: {up: 0, down: 0}
         };
 
         const docRef = await addDataToFirestore(data);
