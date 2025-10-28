@@ -5,12 +5,12 @@ import ReportForm from "./ReportForm.jsx";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/firebase.js";
 
-const southWest = L.latLng(-90, -180); 
-const northEast = L.latLng(90, 180); 
+const southWest = L.latLng(-90, -180);
+const northEast = L.latLng(90, 180);
 const bounds = L.latLngBounds(southWest, northEast);
 
 export default function MapView() {
-    
+
     const [selectedPos, setSelectedPos] = useState(null);
     const [reports, setReports] = useState([]);
     const [zoomLevel, setZoomLevel] = useState(13);
@@ -31,7 +31,7 @@ export default function MapView() {
     }, []);
 
     function MapEvents() {
-        
+
         const map = useMapEvents({
             click(e) {
                 setSelectedPos(e.latlng);
@@ -128,12 +128,17 @@ export default function MapView() {
                     {showReports ? (
                         (() => {
                             const visibleReports = reports.filter((r) => r.pos);
-                        
+
                             return visibleReports.map((report) => (
                                 <div key={report.id}>
                                     <h3>{report.title}</h3>
                                     <p>{report.desc}</p>
                                     <p>Category: {report.category}</p>
+                                    <p>Location (lat, long): {report.pos.lat}, {report.pos.lng}</p>
+                                    <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
+                                        <button onClick={() => handleVote(report.id, 1)}>Upvote</button>
+                                        <button onClick={() => handleVote(report.id, -1)}>Downvote</button>
+                                    </div>
                                 </div>
                             ));
                         })()
