@@ -122,7 +122,24 @@ export default function MapView() {
                 <div style={{ padding: "10px", overflowY: "auto", height: "calc(100% - 30px)" }}>
 
                     {/* ui goes here: search bar, find nearby, etc. */}
-                    <p> </p>
+                    <h2>Nearby Danger</h2>
+                    <hr></hr>
+
+                    {showReports ? (
+                        (() => {
+                            const visibleReports = reports.filter((r) => r.pos);
+                        
+                            return visibleReports.map((report) => (
+                                <div key={report.id}>
+                                    <h3>{report.title}</h3>
+                                    <p>{report.desc}</p>
+                                    <p>Category: {report.category}</p>
+                                </div>
+                            ));
+                        })()
+                    ) : (
+                        <p>Zoom in to see reports</p>
+                    )}
                 </div>
             </div>
         </div>
