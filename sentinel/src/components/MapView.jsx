@@ -5,12 +5,17 @@ import ReportForm from "./ReportForm.jsx";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/firebase.js";
 
+const southWest = L.latLng(-90, -180); 
+const northEast = L.latLng(90, 180); 
+const bounds = L.latLngBounds(southWest, northEast);
+
 export default function MapView() {
     
     const [selectedPos, setSelectedPos] = useState(null);
     const [reports, setReports] = useState([]);
     const [zoomLevel, setZoomLevel] = useState(13);
     const [bottomOpen, setBottomOpen] = useState(false);
+    const [cursorPos, setCursorPos] = useState(null);
 
     useEffect(() => {
 
@@ -45,18 +50,19 @@ export default function MapView() {
 
     return (
         <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
-            {/* Map */}
             <MapContainer
                 center={[37.7749, -122.4194]}
                 zoom={13}
+                minZoom={2}
                 style={{ height: "100%", width: "100%" }}
                 zoomControl={false}
+                maxBounds={bounds}
+                maxBoundsViscosity={1.0}
             >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <ZoomControl position="bottomright" />
                 <MapEvents />
 
-                {/* Show report markers only when zoomed in */}
                 {showReports &&
                     reports.map(
                         (r) =>
@@ -74,7 +80,6 @@ export default function MapView() {
                             )
                     )}
 
-                {/* Form for adding a new report */}
                 {selectedPos && (
                     <ReportForm
                         position={selectedPos}
