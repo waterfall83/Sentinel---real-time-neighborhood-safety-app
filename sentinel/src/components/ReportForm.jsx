@@ -1,5 +1,24 @@
 import { Marker, Popup } from "react-leaflet";
 import { useState } from "react";
+import { db } from "../firebase/firebase.js";
+import { collection, doc, setDoc, addDoc } from "firebase/firestore";
+
+async function addDataToFirestore(data) {
+    try {
+        const docRef = await addDoc(collection(db, "reports"), data);
+        return docRef;
+    } catch (e) {
+        console.error("error: ", e);
+    }
+}
+
+async function setDataToFirestore(docId, data) {
+    try {
+        await setDoc(doc(db, "reports", docId), data);
+    } catch (e) {
+        console.error("error: ", e);
+    }
+}
 
 export default function ReportForm({ position, onClose }) {
 
@@ -9,12 +28,21 @@ export default function ReportForm({ position, onClose }) {
 
     if (!position) return null;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
 
         e.preventDefault();
         // temp: logs report
         // TODO: save report and show nearby reports on the map + improve ui
-        console.log("report draft:", { position, title, description, category });
+        var data = {
+            pos: { lat: position.lat, lng: position.lng },
+            title: title,
+            desc: description,
+            category: category
+        };
+
+        const docRef = await addDataToFirestore(data);
+        setDataToFirestore(docRef.id, data);
+        console.log("report draft:", data);
         onClose?.();
 
     };
