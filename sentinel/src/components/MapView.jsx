@@ -9,7 +9,7 @@ const southWest = L.latLng(-90, -180);
 const northEast = L.latLng(90, 180);
 const bounds = L.latLngBounds(southWest, northEast);
 
-export default function MapView() {
+export default function MapView(user=null) {
 
     const [selectedPos, setSelectedPos] = useState(null);
     const [reports, setReports] = useState([]);
@@ -19,8 +19,38 @@ export default function MapView() {
     const [voted, setVoted] = useState({});
 
     async function handleVote(reportId, voteType) {
-        try { 
+
+        if (voted[reportId]) {
+            alert("You have already voted on this report!");
+            return;
+        }
+
+        try {
+            const reportRef = doc(db, "reports", reportId);
+            const field = voteType === 1 ? "votes.up" : "votes.down";
+
+            await updateDoc(reportRef, { [field]: increment(1) });
+
+            setVoted(prev => ({
+                ...prev,
+                [reportId]: true
+            }));
+
+            setReports((prev) =>
+                prev.map((r) =>
+                    r.id === reportId
+                    ? {
+                          ...r,
+                          votes: {
+                              ...r.votes,
+                              [voteType === 1 ? 'up' : 'down']: (voteType === 1 ? r.votes?.up : r.votes?.down) + 1
+                          },
+                      }
+                    : r
+                )
+            );
         } catch (e) {
+            console.error("vote failed", e);
         }
     }
 
