@@ -30,9 +30,7 @@ export default function GoogleAuth() {
    
     return (
         <div className="signin-page">
-            <h1>Welcome!</h1>
-            <p>descrip scripsctroisogcodescrip scripsctroisogcodescrip scripsctroisogcodescrip scripsctroisogcodescrip scripsctroisogcodescrip scripsctroisogco</p>
-            <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+           
             <div className="signin-center">
                 <div className="signin-inner">
                     {user ? (
