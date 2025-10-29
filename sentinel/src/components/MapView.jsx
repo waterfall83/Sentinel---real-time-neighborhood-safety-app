@@ -37,7 +37,7 @@ export default function MapView(user=null) {
                 ...prev,
                 [reportId]: true
             }));
-
+            /*
             setReports((prev) =>
                 prev.map((r) =>
                     r.id === reportId
@@ -51,6 +51,14 @@ export default function MapView(user=null) {
                     : r
                 )
             );
+            */
+            // NOTE: removed local setReports increment to avoid a race with the
+            // onSnapshot listener. updateDoc already increments the value in
+            // Firestore and the onSnapshot callback (in useEffect) will update
+            // `reports` in state — keeping a local increment here can cause a
+            // double increment when the snapshot arrives before/after this
+            // local update.
+            
         } catch (e) {
             console.error("vote failed", e);
         }
@@ -163,14 +171,14 @@ export default function MapView(user=null) {
 
                     {/* ui goes here: search bar, find nearby, etc. */}
                     <h2 >Nearby Danger</h2>
-                    <hr></hr>
+                    
 
                     {showReports ? (
                         (() => {
                             const visibleReports = reports.filter((r) => r.pos);
 
                             return visibleReports.map((report) => (
-                                <div key={report.id}>
+                                <div key={report.id} className="report-card">
                                     <h3>{report.title}</h3>
                                     <p>{report.desc}</p>
                                     <p>Category: {report.category}</p>
@@ -184,7 +192,7 @@ export default function MapView(user=null) {
                             ));
                         })()
                     ) : (
-                        <p>Zoom in to see reports</p>
+                        <p>Zoom in to see reports...</p>
                     )}
                 </div>
             </div>
