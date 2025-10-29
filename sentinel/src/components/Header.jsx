@@ -15,6 +15,7 @@ export default function Header() {
                 zIndex: 1000,
                 fontWeight: "bold",
                 fontSize: "18px",
+                color: "black",
             }}
         >
             Sentinel

@@ -1,5 +1,6 @@
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, ZoomControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import "./MapView.css";
 import { useState, useEffect } from "react";
 import ReportForm from "./ReportForm.jsx";
 import * as L from "leaflet";
@@ -161,7 +162,7 @@ export default function MapView(user=null) {
                 <div style={{ padding: "10px", overflowY: "auto", height: "calc(100% - 30px)" }}>
 
                     {/* ui goes here: search bar, find nearby, etc. */}
-                    <h2>Nearby Danger</h2>
+                    <h2 >Nearby Danger</h2>
                     <hr></hr>
 
                     {showReports ? (
