@@ -4,14 +4,14 @@ import "./MapView.css";
 import { useState, useEffect } from "react";
 import ReportForm from "./ReportForm.jsx";
 import * as L from "leaflet";
-import { collection, onSnapshot, doc, updateDoc, increment } from "firebase/firestore";
+import { collection, onSnapshot, doc, updateDoc, increment, writeBatch } from "firebase/firestore";
 import { db } from "../firebase/firebase.js";
 
 const southWest = L.latLng(-90, -180);
 const northEast = L.latLng(90, 180);
 const bounds = L.latLngBounds(southWest, northEast);
 
-export default function MapView(user=null) {
+export default function MapView({ user=null }) {
 
     const [selectedPos, setSelectedPos] = useState(null);
     const [reports, setReports] = useState([]);
@@ -20,7 +20,28 @@ export default function MapView(user=null) {
     const [cursorPos, setCursorPos] = useState(null);
     const [voted, setVoted] = useState({});
 
+    useEffect(() => {
+
+        if (!user?.uid) return; 
+        
+        const votesRef = doc(db, "userVotes", user.uid);
+
+        const unsub = onSnapshot(votesRef, (doc) => {
+            if (doc.exists()) {
+                setVoted(doc.data());
+            }
+        });
+        
+        return () => unsub();
+
+    }, [user]);
+
     async function handleVote(reportId, voteType) {
+
+        if (!user?.uid) {
+            alert("Please login to vote");
+            return;
+        }
 
         if (voted[reportId]) {
             alert("You have already voted on this report!");
@@ -28,18 +49,21 @@ export default function MapView(user=null) {
         }
 
         try {
+            const batch = writeBatch(db);
+            
             const reportRef = doc(db, "reports", reportId);
             const field = voteType === 1 ? "votes.up" : "votes.down";
-
-            await updateDoc(reportRef, { [field]: increment(1) });
-
-            setVoted(prev => ({
-                ...prev,
-                [reportId]: true
-            }));
+            batch.update(reportRef, { [field]: increment(1) });
             
+            const votesRef = doc(db, "userVotes", user.uid);
+            batch.set(votesRef, { [reportId]: true }, { merge: true });
+            
+            await batch.commit();
+
         } catch (e) {
+
             console.error("vote failed", e);
+            
         }
     }
 
