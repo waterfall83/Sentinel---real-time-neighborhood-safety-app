@@ -29,23 +29,25 @@ export default function GoogleAuth() {
 
    
     return (
-        <div className="signin-page">
-           
-            <div className="signin-center">
-                <div className="signin-inner">
-                    {user ? (
-                        <div style={{ height: "100%", width: "100%" }}>
-                            <MapView user={user} />
-                            <div style={{ position: "absolute", top: 10, right: 100 }}>
-                                <button onClick={logout}>Logout</button>
-                            </div>
-                        </div>
-                    ) : (
-                        <button onClick={loginWithGoogle}>Sign in with Google</button>
-                    )}
+        <div className={`signin-page ${user ? 'map-active' : ''}`}>
+            {user ? (
+                <div className="map-container">
+                    <MapView user={user} />
+                    <div style={{ position: "absolute", top: 10, right: 100 }}>
+                        <button onClick={logout}>Logout</button>
+                    </div>
                 </div>
-            </div>
+            ) : (
+                <>
+                    <h1>Welcome!</h1>
+                    <p>hoeuhroeuowrheurhewouroewurhoewurouroewwurwurhoewurourowurhoewurourowurhoewurourowurhoewurourohoewurourowurhoewurourowurhoewurourowurhoewurourowurhoewurourowurhoewurourowurhoewurouro</p>
+                    <div className="signin-center">
+                        <div className="signin-inner">
+                            <button onClick={loginWithGoogle}>Sign in with Google</button>
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
-        
     );
 }
