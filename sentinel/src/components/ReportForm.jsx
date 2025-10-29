@@ -53,6 +53,7 @@ export default function ReportForm({ position, onClose }) {
             <Popup>
                 <div style={{ minWidth: 220 }}>
                     <form onSubmit={handleSubmit}>
+                        <div style={{ fontWeight: "bold", marginBottom: 8 }}>New Danger Report</div>
                         <div style={{ marginBottom: 8 }}>
                             <label style={{ display: "block", fontSize: 12 }}>Title</label>
                             <input value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: "100%" }} />
