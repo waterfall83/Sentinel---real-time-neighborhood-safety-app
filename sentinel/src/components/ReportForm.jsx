@@ -48,6 +48,8 @@ export default function ReportForm({ position, onClose }) {
 
     };
 
+    // make some fields required
+    
     return (
         <Marker position={position}>
             <Popup>

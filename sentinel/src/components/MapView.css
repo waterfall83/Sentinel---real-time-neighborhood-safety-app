@@ -10,13 +10,31 @@ h3 {
     color: black;
 }
 
-.report-card{
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    width: 40%;
+button {
+
+    background-color: #d3dfef;
+    color: #6d8099;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+
 }
 
+button:hover {
+    background-color: #c0d1e6;
+}
+
+.report-card:hover {
+    border: 3px solid #d3dfef;
+}
+
+.report-card {
+    border: 3px solid #f8fbff;
+    position: relative;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 30px;
+    background-color: #f8fbff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
