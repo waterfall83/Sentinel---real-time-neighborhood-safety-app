@@ -186,10 +186,10 @@ export default function MapView({ user=null }) {
                                     <p>{report.desc}</p>
                                     <p>Category: {report.category}</p>
                                     <p>Location (lat, long): {report.pos.lat}, {report.pos.lng}</p>
-                                    <p>Up: {report.votes.up} , Down: {report.votes.down} </p>
+                                    <p>Up: {report.votes.up}, Down: {report.votes.down} </p>
                                     <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
-                                        <button onClick={() => handleVote(report.id, 1)}>Upvote</button>
-                                        <button onClick={() => handleVote(report.id, -1)}>Downvote</button>
+                                        <button onClick={() => handleVote(report.id, 1)} style={{color: "#8058ac" }}>Upvote</button>
+                                        <button onClick={() => handleVote(report.id, -1)} style={{color: "#8058ac"}}>Downvote</button>
                                     </div>
                                 </div>
                             ));
