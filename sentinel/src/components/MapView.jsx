@@ -2,6 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, ZoomControl } fro
 import "leaflet/dist/leaflet.css";
 import { useState, useEffect } from "react";
 import ReportForm from "./ReportForm.jsx";
+import * as L from "leaflet";
 import { collection, onSnapshot, doc, updateDoc, increment } from "firebase/firestore";
 import { db } from "../firebase/firebase.js";
 
