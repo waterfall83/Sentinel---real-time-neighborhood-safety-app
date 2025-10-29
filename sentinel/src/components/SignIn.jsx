@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { auth, googleProvider } from "../firebase/firebase.js";
 import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import MapView from "./MapView"; 
+import "./SignIn.css";
 
 export default function GoogleAuth() {
     const [user, setUser] = useState(auth.currentUser);
@@ -26,20 +27,27 @@ export default function GoogleAuth() {
         return unsub;
     }, []);
 
+   
     return (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>
-            <div style={{ textAlign: "left", width: "100%" }}>
-                {user ? (
-                    <div style={{ height: "100%", width: "100%" }}>
-                        <MapView user={user} />
-                        <div style={{ position: "absolute", top: 10, right: 10 }}>
-                            <button onClick={logout}>Logout</button>
+        <div className="signin-page">
+            <h1>Welcome!</h1>
+            <p>descrip scripsctroisogcodescrip scripsctroisogcodescrip scripsctroisogcodescrip scripsctroisogcodescrip scripsctroisogcodescrip scripsctroisogco</p>
+            <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+            <div className="signin-center">
+                <div className="signin-inner">
+                    {user ? (
+                        <div style={{ height: "100%", width: "100%" }}>
+                            <MapView user={user} />
+                            <div style={{ position: "absolute", top: 10, right: 100 }}>
+                                <button onClick={logout}>Logout</button>
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <button onClick={loginWithGoogle}>Sign in with Google</button>
-                )}
+                    ) : (
+                        <button onClick={loginWithGoogle}>Sign in with Google</button>
+                    )}
+                </div>
             </div>
         </div>
+        
     );
 }
