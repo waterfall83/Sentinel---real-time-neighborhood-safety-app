@@ -37,27 +37,6 @@ export default function MapView(user=null) {
                 ...prev,
                 [reportId]: true
             }));
-            /*
-            setReports((prev) =>
-                prev.map((r) =>
-                    r.id === reportId
-                    ? {
-                          ...r,
-                          votes: {
-                              ...r.votes,
-                              [voteType === 1 ? 'up' : 'down']: (voteType === 1 ? r.votes?.up : r.votes?.down) + 1
-                          },
-                      }
-                    : r
-                )
-            );
-            */
-            // NOTE: removed local setReports increment to avoid a race with the
-            // onSnapshot listener. updateDoc already increments the value in
-            // Firestore and the onSnapshot callback (in useEffect) will update
-            // `reports` in state — keeping a local increment here can cause a
-            // double increment when the snapshot arrives before/after this
-            // local update.
             
         } catch (e) {
             console.error("vote failed", e);
