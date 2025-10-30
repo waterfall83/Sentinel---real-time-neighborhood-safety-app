@@ -174,6 +174,13 @@ button.Button.save-btn:hover,
   box-shadow: 0 4px 14px rgba(0,0,0,0.12) !important;
 }
 
+button.Button.save-btn:focus,
+.Button.save-btn:focus,
+.save-btn:focus {
+  border: none transparent !important;
+  outline: none !important;   
+}
+
 
 
 button.Button.cancel-btn,
@@ -199,6 +206,14 @@ button.Button.cancel-btn:hover,
   background-color: #a083c9 !important;
   box-shadow: 0 4px 14px rgba(0,0,0,0.12) !important;
 }
+
+button.Button.cancel-btn:focus,
+.Button.cancel-btn:focus,
+.cancel-btn:focus {
+  border: none transparent !important;
+  outline: none !important;  
+}
+
 
 .button-container {
   display: flex;
