@@ -1,17 +1,18 @@
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, ZoomControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "./MapView.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ReportForm from "./ReportForm.jsx";
 import * as L from "leaflet";
 import { collection, onSnapshot, doc, updateDoc, increment, writeBatch } from "firebase/firestore";
 import { db } from "../firebase/firebase.js";
+import { getDistance } from "geolib";
 
 const southWest = L.latLng(-90, -180);
 const northEast = L.latLng(90, 180);
 const bounds = L.latLngBounds(southWest, northEast);
 
-export default function MapView({ user=null }) {
+export default function MapView({ user = null }) {
 
     const [selectedPos, setSelectedPos] = useState(null);
     const [reports, setReports] = useState([]);
@@ -19,11 +20,44 @@ export default function MapView({ user=null }) {
     const [bottomOpen, setBottomOpen] = useState(false);
     const [cursorPos, setCursorPos] = useState(null);
     const [voted, setVoted] = useState({});
+    const [userPos, setUserPos] = useState(null);
+    const [locationError, setLocationError] = useState(null);
+    const [mapCenter, setMapCenter] = useState(null);
+
+    const mapRef = useRef(null);
+
+    useEffect(() => {
+        if (!navigator.geolocation) {
+            setLocationError("Geolocation is not supported by your browser");
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const { latitude, longitude } = pos.coords;
+                setUserPos({ lat: latitude, lng: longitude });
+                setMapCenter({ lat: latitude, lng: longitude });
+            },
+            (err) => {
+                setLocationError("Unable to retrieve your location");
+                console.error(err);
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    }, []);
 
     useEffect(() => {
 
-        if (!user?.uid) return; 
-        
+        if (userPos && mapRef.current) {
+            mapRef.current.flyTo([userPos.lat, userPos.lng], 13, { duration: 1.2 });
+        }
+
+    }, [userPos]);
+
+    useEffect(() => {
+
+        if (!user?.uid) return;
+
         const votesRef = doc(db, "userVotes", user.uid);
 
         const unsub = onSnapshot(votesRef, (doc) => {
@@ -31,10 +65,11 @@ export default function MapView({ user=null }) {
                 setVoted(doc.data());
             }
         });
-        
+
         return () => unsub();
 
     }, [user]);
+
 
     async function handleVote(reportId, voteType) {
 
@@ -43,27 +78,22 @@ export default function MapView({ user=null }) {
             return;
         }
 
-        if (voted[reportId]) {
-            alert("You have already voted on this report!");
-            return;
-        }
-
         try {
             const batch = writeBatch(db);
-            
+
             const reportRef = doc(db, "reports", reportId);
             const field = voteType === 1 ? "votes.up" : "votes.down";
             batch.update(reportRef, { [field]: increment(1) });
-            
+
             const votesRef = doc(db, "userVotes", user.uid);
             batch.set(votesRef, { [reportId]: true }, { merge: true });
-            
+
             await batch.commit();
 
         } catch (e) {
 
             console.error("vote failed", e);
-            
+
         }
     }
 
@@ -80,6 +110,19 @@ export default function MapView({ user=null }) {
 
     }, []);
 
+    const nearbyReports = (mapCenter && reports.length > 0)
+        ? reports.filter((r) => {
+            if (!r.pos || !r.pos.lat || !r.pos.lng) return false;
+
+            return (
+                getDistance(
+                    { latitude: mapCenter.lat, longitude: mapCenter.lng },
+                    { latitude: r.pos.lat, longitude: r.pos.lng }
+                ) <= 7000 // 7 km, can edit later
+            );
+        })
+        : [];
+
     function MapEvents() {
 
         const map = useMapEvents({
@@ -88,12 +131,32 @@ export default function MapView({ user=null }) {
             },
             zoomend() {
                 setZoomLevel(map.getZoom());
+                setMapCenter(map.getCenter());
+            },
+            moveend() {
+                setMapCenter(map.getCenter());
             },
             mousemove(e) {
                 setCursorPos(e.latlng);
             },
         });
+
         return null;
+    }
+    if (!userPos && !locationError) {
+        return (
+            <div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                Getting your location...
+            </div>
+        );
+    }
+
+    if (locationError) {
+        return (
+            <div style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", color: "red" }}>
+                {locationError}
+            </div>
+        );
     }
 
     const showReports = zoomLevel >= 13;
@@ -101,7 +164,11 @@ export default function MapView({ user=null }) {
     return (
         <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
             <MapContainer
-                center={[37.7749, -122.4194]}
+                whenCreated={(mapInstance) => {
+                    mapRef.current = mapInstance;
+                    mapInstance.setView([userPos.lat, userPos.lng], 13);
+                }}
+                center={[userPos.lat, userPos.lng]}
                 zoom={13}
                 minZoom={2}
                 style={{ height: "100%", width: "100%" }}
@@ -114,7 +181,7 @@ export default function MapView({ user=null }) {
                 <MapEvents />
 
                 {showReports &&
-                    reports.map(
+                    nearbyReports.map(
                         (r) =>
                             r.pos && (
                                 <Marker
@@ -144,62 +211,48 @@ export default function MapView({ user=null }) {
             </MapContainer>
 
             <div
-                style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: bottomOpen ? "60%" : "120px",
-                    backgroundColor: "#fff",
-                    borderTopLeftRadius: "20px",
-                    borderTopRightRadius: "20px",
-                    boxShadow: "0 -2px 10px rgba(0,0,0,0.2)",
-                    transition: "height 0.3s ease",
-                    zIndex: 1000,
-                    overflow: "hidden",
-                }}
-                onClick={() => setBottomOpen(!bottomOpen)}
+                className={`bottom-drawer ${bottomOpen ? "open" : ""}`}
             >
                 <div
-                    style={{
-                        width: "50px",
-                        height: "6px",
-                        backgroundColor: "#ccc",
-                        borderRadius: "3px",
-                        margin: "10px auto",
-                    }}
-                />
+                    className="drawer-handle"
+                    onClick={() => setBottomOpen(!bottomOpen)}
+                >
+                    <div className="drawer-handle-bar" />
+                </div>
 
-                <div style={{ padding: "10px", overflowY: "auto", height: "calc(100% - 30px)" }}>
+                <div className="drawer-content" onClick={(e) => e.stopPropagation()}>
+                    <div className="drawer-header">
+                        <h2>Nearby Reports</h2>
+                        <p className="drawer-sub">See what's happening around you</p>
+                    </div>
 
-                    {/* ui goes here: search bar, find nearby, etc. */}
-                    <h2 >Nearby Danger</h2>
-                    
-
-                    {showReports ? (
-                        (() => {
-                            const visibleReports = reports.filter((r) => r.pos);
-
-                            return visibleReports.map((report) => (
+                    <div className="report-list">
+                        {showReports ? (nearbyReports.length > 0 ? (
+                            nearbyReports.filter((r) => r.pos).map((report) => (
                                 <div key={report.id} className="report-card">
-                                    <h3>{report.title}</h3>
-                                    <p>{report.desc}</p>
-                                    <p>Category: {report.category}</p>
-                                    <p>Location (lat, long): {report.pos.lat}, {report.pos.lng}</p>
-                                    <p>Up: {report.votes.up}, Down: {report.votes.down} </p>
-                                    <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
-                                        <button onClick={() => handleVote(report.id, 1)} style={{color: "#8058ac" }}>Upvote</button>
-                                        <button onClick={() => handleVote(report.id, -1)} style={{color: "#8058ac"}}>Downvote</button>
+                                    <div className="report-top">
+                                        <h3>{report.title}</h3>
+                                        <span className="category-tag">{report.category}</span>
+                                    </div>
+                                    <p className="report-desc">{report.desc}</p>
+                                    <div className="report-meta">
+                                        📍 {report.pos.lat.toFixed(3)}, {report.pos.lng.toFixed(3)}
+                                    </div>
+                                    <div className="vote-buttons">
+                                        <button className={voted[report.id] ? "disabled-btn" : ""} disabled={voted[report.id]} onClick={(e) => { e.stopPropagation(); handleVote(report.id, 1); }}>Upvote: {report.votes.up}</button>
+                                        <button className={voted[report.id] ? "disabled-btn" : ""} disabled={voted[report.id]} onClick={(e) => { e.stopPropagation(); handleVote(report.id, -1); }}>Downvote: {report.votes.down}</button>
                                     </div>
                                 </div>
-                            ));
-                        })()
-                    ) : (
-                        <p>Zoom in to see reports...</p>
-                    )}
+                            ))
+                        ) : (
+                            <p>No nearby reports within 7 km.</p>
+                        )
+                        ) : (
+                            < p className="zoom-hint">Zoom in to see nearby reports...</p>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
-    );
+        </div >);
 }
 
