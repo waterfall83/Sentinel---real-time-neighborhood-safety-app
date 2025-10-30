@@ -198,14 +198,33 @@ export default function MapView({ user = null }) {
                                     position={[r.pos.lat, r.pos.lng]}
 
                                 >
-                                    <Popup>
-                                        <b style={{ fontSize: "20px"}}>📍{r.title}</b>
-                                        <hr style={{ height: "1px", backgroundColor: "#8058ac", border: "none" }} />
-                                        <p>{r.desc}</p>
-                                        <p>Category: {r.category}</p>
-                                        <p>Date: {r.createdAt ? formatDate(r.createdAt) : "Unknown"}</p>
-                                        <p>⬆️ {r.votes.up} ⬇️ {r.votes.down} </p>
+
+                                    <Popup className="marker-popup">
+                                    <div className="popup-card">
+                                        {/* Title */}
+                                        <h3 className="popup-title">📍 {r.title}</h3>
+                                        
+                                        {/* Category badge top-right */}
+                                        <span className="popup-category-badge">{r.category}</span>
+
+                                        {/* Description */}
+                                        <p className="popup-desc">{r.desc}</p>
+
+                                        {/* Meta boxes for time and location */}
+                                        <div className="popup-meta-boxes">
+                                        <span className="popup-meta-badge">🕒 {r.createdAt ? formatDate(r.createdAt) : "Unknown"}</span>
+                                        <span className="popup-meta-badge">📍 {r.pos.lat.toFixed(5)}, {r.pos.lng.toFixed(5)}</span>
+                                        </div>
+
+                                        {/* Votes */}
+                                        <div className="popup-votes">
+                                        <span>⬆️ {r.votes.up}</span>
+                                        <span>⬇️ {r.votes.down}</span>
+                                        </div>
+                                    </div>
                                     </Popup>
+
+                                    
                                 </Marker>
                             )
                     )}
