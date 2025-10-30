@@ -2,6 +2,7 @@ import { Marker, Popup } from "react-leaflet";
 import { useState } from "react";
 import { db } from "../firebase/firebase.js";
 import { collection, doc, setDoc, addDoc } from "firebase/firestore";
+import "./ReportForm.css";
 
 async function addDataToFirestore(data) {
     try {
@@ -42,7 +43,15 @@ export default function ReportForm({ position, onClose }) {
         };
 
         const docRef = await addDataToFirestore(data);
-        setDataToFirestore(docRef.id, data);
+        await setDataToFirestore(docRef.id, data);
+
+        window.dispatchEvent(new CustomEvent('sentinel-show-toast', {
+            detail: {
+                title: "Successful Report!",
+                description: `Danger report ${title} has been saved.`
+            }
+        }));
+
         console.log("report draft:", data);
         onClose?.();
 
