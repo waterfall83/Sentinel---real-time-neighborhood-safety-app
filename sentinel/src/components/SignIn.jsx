@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { auth, googleProvider } from "../firebase/firebase.js";
 import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import MapView from "./MapView"; 
+import MapView from "./MapView";
 import "./SignIn.css";
 
 export default function GoogleAuth() {
@@ -27,22 +27,28 @@ export default function GoogleAuth() {
         return unsub;
     }, []);
 
-   
+
     return (
         <div className={`signin-page ${user ? 'map-active' : ''}`}>
             {user ? (
                 <div className="map-container">
                     <MapView user={user} />
-                    <div style={{ position: "absolute", top: 10, right: 100 }}>
-                        <button onClick={logout}>Logout</button>
+                    <div style={{
+                        zIndex: 10000,
+                        display: "flex",
+                        fontSize: "14px",
+                        color: "black",
+                        position: "absolute",
+                        top: 20,
+                        right: 10
+                    }}>
+                        <button onClick={logout} >Logout</button>
                     </div>
                 </div>
             ) : (
                 <>
-                    <h1>Welcome!</h1>
-                    <p>hoeuhroeuowrheurhewouroewurhoewurouroewwurwurhoewurourowurhoewurourowurhoewurourowurhoewurourohoewurourowurhoewurourowurhoewurourowurhoewurourowurhoewurourowurhoewurourowurhoewurouro</p>
                     <div className="signin-center">
-                        <div className="signin-inner">
+                        <div className="signin-inner" style={{ height: "calc(80vh)", display: "flex", justifyContent: "center", alignItems: "center" }}>
                             <button onClick={loginWithGoogle}>Sign in with Google</button>
                         </div>
                     </div>
