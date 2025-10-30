@@ -4,10 +4,15 @@
 @import "@radix-ui/colors/slate.css";
 @import "@radix-ui/colors/violet.css";
 
-/* reset */
+
 button {
 	all: unset;
 }
+
+form {
+  font-family: "Poppins", sans-serif !important;
+}
+
 
 .ToastViewport {
 	--viewport-padding: 25px;
@@ -144,4 +149,67 @@ button {
 }
 .Button.green:focus {
 	box-shadow: 0 0 0 2px var(--green-8);
+}
+
+button.Button.save-btn,
+.Button.sabe-btn,
+.save-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: right !important;
+  background-color:#8058ac !important;
+  color: #ffffff !important;
+  padding: 0 14px !important;
+  height: 36px !important;
+  margin-top: 10px !important;
+
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+  cursor: pointer !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+button.Button.save-btn:hover,
+.Button.save-btn:hover,
+.save-btn:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12) !important;
+}
+
+
+
+button.Button.cancel-btn,
+.Button.cancel-btn,
+.cancel-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color:#c3b4e5 !important;
+  color: #ffffff !important;
+  padding: 0 14px !important;
+  height: 36px !important;
+  margin-top: 10px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+  margin-right: 0px;
+  cursor: pointer !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+button.Button.cancel-btn:hover,
+.Button.cancel-btn:hover,
+.cancel-btn:hover {
+  background-color: #a083c9 !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12) !important;
+}
+
+.button-container {
+  display: flex;
+  justify-content: right !important; 
+  align-items: center;
+  gap: 8px;          
+  margin-top: 8px;
+  width: 100%;
+}
+
+textarea, input{
+  border: none !important;
+  resize: none; 
 }

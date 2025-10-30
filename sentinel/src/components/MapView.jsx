@@ -196,13 +196,15 @@ export default function MapView({ user = null }) {
                                 <Marker
                                     key={r.id}
                                     position={[r.pos.lat, r.pos.lng]}
+
                                 >
                                     <Popup>
-                                        <b>{r.title}</b>
+                                        <b style={{ fontSize: "20px"}}>📍{r.title}</b>
+                                        <hr style={{ height: "1px", backgroundColor: "#8058ac", border: "none" }} />
                                         <p>{r.desc}</p>
                                         <p>Category: {r.category}</p>
                                         <p>Date: {r.createdAt ? formatDate(r.createdAt) : "Unknown"}</p>
-                                        <p>Up: {r.votes.up} , Down: {r.votes.down} </p>
+                                        <p>⬆️ {r.votes.up} ⬇️ {r.votes.down} </p>
                                     </Popup>
                                 </Marker>
                             )
