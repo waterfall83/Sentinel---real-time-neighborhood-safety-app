@@ -66,7 +66,8 @@ export default function ReportForm({ position, onClose }) {
                 <div style={{ minWidth: 220 }}>
                     <form onSubmit={handleSubmit}>
                         <div style={{ fontWeight: "bold", marginBottom: 8 }}>New Danger Report</div>
-                        <div style={{ marginBottom: 8 }}>
+                        <hr style={{ height: "1px", backgroundColor: "#8058ac", border: "none" }} />
+                        <div style={{ marginBottom: 8, marginTop: 20}}>
                             <label style={{ display: "block", fontSize: 12 }}>Title</label>
                             <input value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: "100%" }} />
                         </div>
@@ -78,9 +79,9 @@ export default function ReportForm({ position, onClose }) {
                             <label style={{ display: "block", fontSize: 12 }}>Category</label>
                             <input value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: "100%" }} />
                         </div>
-                        <div style={{ display: "flex", gap: 8 }}>
-                            <button type="submit">Save</button>
-                            <button type="button" onClick={() => onClose?.()}>
+                        <div className="button-container">
+                            <button type="submit" className="Button save-btn">Save</button>
+                            <button type="button" onClick={() => onClose?.()} className="Button cancel-btn">
                                 Cancel
                             </button>
                         </div>
