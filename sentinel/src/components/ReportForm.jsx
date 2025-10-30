@@ -39,7 +39,8 @@ export default function ReportForm({ position, onClose }) {
             title: title,
             desc: description,
             category: category,
-            votes: {up: 0, down: 0}
+            votes: {up: 0, down: 0},
+            createdAt: new Date().toISOString(),
         };
 
         const docRef = await addDataToFirestore(data);

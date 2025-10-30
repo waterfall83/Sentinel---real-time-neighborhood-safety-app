@@ -161,6 +161,15 @@ export default function MapView({ user = null }) {
 
     const showReports = zoomLevel >= 13;
 
+    function formatDate(dateStr) {
+        if (!dateStr) return "Unknown";
+        try {
+            return new Date(dateStr).toLocaleString();
+        } catch (e) {
+            return dateStr;
+        }
+    }
+
     return (
         <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
             <MapContainer
@@ -192,6 +201,7 @@ export default function MapView({ user = null }) {
                                         <b>{r.title}</b>
                                         <p>{r.desc}</p>
                                         <p>Category: {r.category}</p>
+                                        <p>Date: {r.createdAt ? formatDate(r.createdAt) : "Unknown"}</p>
                                         <p>Up: {r.votes.up} , Down: {r.votes.down} </p>
                                     </Popup>
                                 </Marker>
@@ -238,6 +248,7 @@ export default function MapView({ user = null }) {
                                     <div className="report-meta">
                                         📍 {report.pos.lat.toFixed(3)}, {report.pos.lng.toFixed(3)}
                                     </div>
+                                    <div className="report-meta">🕒 {report.createdAt ? formatDate(report.createdAt) : "Unknown"}</div>
                                     <div className="vote-buttons">
                                         <button className={voted[report.id] ? "disabled-btn" : ""} disabled={voted[report.id]} onClick={(e) => { e.stopPropagation(); handleVote(report.id, 1); }}>Upvote: {report.votes.up}</button>
                                         <button className={voted[report.id] ? "disabled-btn" : ""} disabled={voted[report.id]} onClick={(e) => { e.stopPropagation(); handleVote(report.id, -1); }}>Downvote: {report.votes.down}</button>
