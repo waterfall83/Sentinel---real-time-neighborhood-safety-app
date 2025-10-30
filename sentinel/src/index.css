@@ -85,4 +85,6 @@ button:focus-visible {
 }
 .OKbutton:hover {
   background-color: #a083c9;
+  border: none transparent;
+  cursor: pointer;
 }
