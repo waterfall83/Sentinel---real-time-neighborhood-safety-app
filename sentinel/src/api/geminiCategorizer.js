@@ -1,5 +1,5 @@
-import.meta.env = {"BASE_URL": "/", "DEV": true, "MODE": "development", "PROD": false, "SSR": false};// src/api/geminiCategorizer.js
-import { GoogleGenerativeAI } from "/node_modules/.vite/deps/@google_generative-ai.js?v=0ee8b752";
+// src/api/geminiCategorizer.js
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
