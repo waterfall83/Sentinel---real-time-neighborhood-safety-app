@@ -3,6 +3,7 @@ import { useState } from "react";
 import { db } from "../firebase/firebase.js";
 import { collection, doc, setDoc, addDoc } from "firebase/firestore";
 import "./ReportForm.css";
+import { generateSeverity } from "../api/geminiCategorizer.js"; // import Gemini
 
 async function addDataToFirestore(data) {
     try {
@@ -30,44 +31,32 @@ export default function ReportForm({ position, onClose }) {
     if (!position) return null;
 
     const handleSubmit = async (e) => {
-
         e.preventDefault();
-        // temp: logs report
-        // TODO: save report and show nearby reports on the map + improve ui
-        var data = {
+
+        // generate category w/ gemini
+        const severity = await generateSeverity(title, description);
+
+        const data = {
             pos: { lat: position.lat, lng: position.lng },
             title: title,
             desc: description,
-            category: category,
-            votes: {up: 0, down: 0},
-            createdAt: new Date().toISOString(),
+            category: severity, // AI-generated
+            votes: { up: 0, down: 0 }
         };
 
         const docRef = await addDataToFirestore(data);
-        await setDataToFirestore(docRef.id, data);
-
-        window.dispatchEvent(new CustomEvent('sentinel-show-toast', {
-            detail: {
-                title: "Successful Report!",
-                description: `Danger report ${title} has been saved.`
-            }
-        }));
-
+        setDataToFirestore(docRef.id, data);
         console.log("report draft:", data);
         onClose?.();
-
     };
 
-    // make some fields required
-    
     return (
         <Marker position={position}>
             <Popup>
                 <div style={{ minWidth: 220 }}>
                     <form onSubmit={handleSubmit}>
                         <div style={{ fontWeight: "bold", marginBottom: 8 }}>New Danger Report</div>
-                        <hr style={{ height: "1px", backgroundColor: "#8058ac", border: "none" }} />
-                        <div style={{ marginBottom: 8, marginTop: 20}}>
+                        <div style={{ marginBottom: 8 }}>
                             <label style={{ display: "block", fontSize: 12 }}>Title</label>
                             <input value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: "100%" }} />
                         </div>
@@ -75,13 +64,9 @@ export default function ReportForm({ position, onClose }) {
                             <label style={{ display: "block", fontSize: 12 }}>Description</label>
                             <textarea value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: "100%" }} />
                         </div>
-                        <div style={{ marginBottom: 8 }}>
-                            <label style={{ display: "block", fontSize: 12 }}>Category</label>
-                            <input value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: "100%" }} />
-                        </div>
-                        <div className="button-container">
-                            <button type="submit" className="Button save-btn">Save</button>
-                            <button type="button" onClick={() => onClose?.()} className="Button cancel-btn">
+                        <div style={{ display: "flex", gap: 8 }}>
+                            <button type="submit">Save</button>
+                            <button type="button" onClick={() => onClose?.()}>
                                 Cancel
                             </button>
                         </div>
