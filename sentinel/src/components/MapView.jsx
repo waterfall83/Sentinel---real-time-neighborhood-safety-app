@@ -23,6 +23,8 @@ export default function MapView({ user = null }) {
     const [userPos, setUserPos] = useState(null);
     const [locationError, setLocationError] = useState(null);
     const [mapCenter, setMapCenter] = useState(null);
+    const [selectedMarker, setSelectedMarker] = useState(null);
+    const markerRefs = useRef({});
 
     const mapRef = useRef(null);
 
@@ -69,6 +71,15 @@ export default function MapView({ user = null }) {
         return () => unsub();
 
     }, [user]);
+
+    useEffect(() => {
+        if (selectedMarker && markerRefs.current[selectedMarker]) {
+            const marker = markerRefs.current[selectedMarker];
+            setTimeout(() => {
+                marker.openPopup();
+            }, 500);
+        }
+    }, [selectedMarker]);
 
 
     async function handleVote(reportId, voteType) {
@@ -173,10 +184,7 @@ export default function MapView({ user = null }) {
     return (
         <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
             <MapContainer
-                whenCreated={(mapInstance) => {
-                    mapRef.current = mapInstance;
-                    mapInstance.setView([userPos.lat, userPos.lng], 13);
-                }}
+                ref={mapRef}
                 center={[userPos.lat, userPos.lng]}
                 zoom={13}
                 minZoom={2}
@@ -190,16 +198,22 @@ export default function MapView({ user = null }) {
                 <MapEvents />
 
                 {showReports &&
-                    nearbyReports.map(
-                        (r) =>
-                            r.pos && (
-                                <Marker
-                                    key={r.id}
-                                    position={[r.pos.lat, r.pos.lng]}
-
+                nearbyReports.map(
+                    (r) =>
+                        r.pos && (
+                            <Marker
+                                key={r.id}
+                                position={[r.pos.lat, r.pos.lng]}
+                                ref={(ref) => {
+                                    if (ref) {
+                                        markerRefs.current[r.id] = ref;
+                                    }
+                                }}
+                            >
+                                <Popup
+                                    onClose={() => setSelectedMarker(null)}
+                                    className="marker-popup"
                                 >
-
-                                    <Popup className="marker-popup">
                                     <div className="popup-card">
                                         <h3 className="popup-title">📍 {r.title}</h3>
                                         
@@ -208,21 +222,19 @@ export default function MapView({ user = null }) {
                                         <p className="popup-desc">{r.desc}</p>
 
                                         <div className="popup-meta-boxes">
-                                        <span className="report-meta">🕒 {r.createdAt ? formatDate(r.createdAt) : "Unknown"}</span>
-                                        <span className="report-meta">📍 {r.pos.lat.toFixed(5)}, {r.pos.lng.toFixed(5)}</span>
+                                            <span className="report-meta">🕒 {r.createdAt ? formatDate(r.createdAt) : "Unknown"}</span>
+                                            <span className="report-meta">📍 {r.pos.lat.toFixed(5)}, {r.pos.lng.toFixed(5)}</span>
                                         </div>
 
                                         <div className="popup-votes">
-                                        <span>⬆️ {r.votes.up}</span>
-                                        <span>⬇️ {r.votes.down}</span>
+                                            <span>⬆️ {r.votes.up}</span>
+                                            <span>⬇️ {r.votes.down}</span>
                                         </div>
                                     </div>
-                                    </Popup>
-
-                                    
-                                </Marker>
-                            )
-                    )}
+                                </Popup>
+                            </Marker>
+                        )
+                )}
 
                 {selectedPos && (
                     <ReportForm
@@ -255,7 +267,15 @@ export default function MapView({ user = null }) {
                     <div className="report-list">
                         {showReports ? (nearbyReports.length > 0 ? (
                             nearbyReports.filter((r) => r.pos).map((report) => (
-                                <div key={report.id} className="report-card">
+                                <div key={report.id} className="report-card" 
+                                onClick={() => {
+                                    setSelectedMarker(report.id);
+                                    setBottomOpen(false);
+                                    const map = mapRef.current;
+                                    if (map) {
+                                        map.flyTo([report.pos.lat, report.pos.lng], 16, { duration: 1 });
+                                    }
+                                }}> 
                                     <div className="report-top">
                                         <h3>{report.title}</h3>
                                         <span className="category-tag">{report.category}</span>
@@ -282,4 +302,3 @@ export default function MapView({ user = null }) {
             </div>
         </div >);
 }
-
