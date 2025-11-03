@@ -27,6 +27,7 @@ export default function GoogleAuth() {
         return unsub;
     }, []);
 
+
     return (
         <div className={`signin-page ${user ? 'map-active' : ''}`}>
             {user ? (
