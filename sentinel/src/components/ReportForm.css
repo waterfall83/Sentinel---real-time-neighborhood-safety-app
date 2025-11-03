@@ -227,3 +227,13 @@ textarea, input{
   border: none !important;
   resize: none; 
 }
+
+.report-title{
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: black;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
