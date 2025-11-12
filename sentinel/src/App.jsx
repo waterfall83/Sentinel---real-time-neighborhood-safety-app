@@ -1,25 +1,15 @@
-import { useState } from 'react'
-import MapView from './components/MapView.jsx'
-import Header from './components/Header.jsx'
-import SignIn from './components/SignIn.jsx'
-import './App.css'
-import "leaflet/dist/leaflet.css"; // existing Leaflet CSS
-import "./styles/popup.css";       // custom popup CSS
+import { useState } from "react";
+import Header from "./components/Header.jsx";
+import SignIn from "./components/SignIn.jsx";
+import "./App.css";
 
-function App() {
-
-  const [reports, setReports] = useState([])
+export default function App() {
+  const [mapInstance, setMapInstance] = useState(null);
 
   return (
-
     <div className="app-container">
-      <Header />
-      <SignIn />
+      {/* <Header map={mapInstance} /> */}
+      <SignIn setMapInstance={setMapInstance} />
     </div>
-
-
-  )
-
+  );
 }
-
-export default App

@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # Hide secrets
-secrets.env
+.env
